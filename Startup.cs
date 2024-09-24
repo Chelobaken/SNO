@@ -7,6 +7,8 @@ using JavaScriptEngineSwitcher.Extensions.MsDependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -14,6 +16,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using React.AspNet;
+using SNO;
 
 namespace ReactDemo
 {
@@ -39,16 +42,21 @@ namespace ReactDemo
 
 			services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 			services.AddReact();
-			// Add framework services.
+			
 			services.AddMvc();
+			services.AddDbContext<SnoTestDbContext>(options => options.UseNpgsql(Configuration.GetConnectionString("SnoTestDB")));
+			services.AddSingleton<IConfiguration>(Configuration);
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
 		{
+			//routeBuilder = new RouteBuilder(app);
+			
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
+				
 				app.UseBrowserLink();
 			}
 			else
@@ -84,11 +92,24 @@ namespace ReactDemo
 			app.UseStaticFiles();
 
 			app.UseRouting();
+			
 
 			app.UseEndpoints(endpoints =>
 			{
-				endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
+				endpoints.MapControllerRoute("default", "/{controller=Home}/{action=Index}/{id?}");
+				//endpoints.MapControllerRoute("apiEventDetails", "/{controller=Api}/{action}/{id?}");
+				endpoints.MapControllerRoute("apiEventsAll", "/{controller=Api}/{action=GetAll}/{apiData}");
+
+
+
+
 			});
+
+/* 			app.MapRoute("/api", api => {
+				app.MapRoute("/events/{id?}", );
+				app.MapRoute("/events/new", );
+
+			}); */
 		}
 	}
 }

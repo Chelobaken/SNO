@@ -1,24 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 
 namespace SNO;
 
 public partial class SnoTestDbContext : DbContext
 {
-    public SnoTestDbContext()
-    {
-    }
-
+    
     public SnoTestDbContext(DbContextOptions<SnoTestDbContext> options)
         : base(options)
     {
+          
     }
 
     public virtual DbSet<Event> Events { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseNpgsql("Name = ConnectionStrings:SnoTestDB");
+    {
+        
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
