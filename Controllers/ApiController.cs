@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using ReactDemo.Models;
 using SNO;
@@ -9,35 +10,38 @@ namespace ReactDemo.Controllers
     public enum ApiDataType
     {
         Event,
-        Project
+        Project,
+        User
     }
     
     public class ApiController : Controller
     {
-        private SnoTestDbContext ctx;
-        
-        public ApiController(SnoTestDbContext context1)
-        {
-           ctx = context1;
-           
-           // foreach(IConfigurationSection s in config.GetChildren())
-            //    Console.WriteLine(s.Key + " = " + s.Value);
+        private SnoTestDbContext _context;
+
+        public ApiController(SnoTestDbContext context)
+        { 
+           _context = context;
         }
 
-        public ActionResult GetAll( ApiDataType apiData)
+        public virtual ActionResult Get() 
         {
-            switch(apiData)
-            {
-                case ApiDataType.Event:
-                {
-                    List<Event> events = ctx.Events.ToList();
-            return Json(events);
-
-                }
-                default:
-                return Json("null");
-            }
             
+            
+            return Json("not implemented");
+        }
+
+        public virtual ActionResult Put()
+        {
+            
+        }
+
+        public virtual ActionResult Delete()
+        {
+            
+        }
+
+        public virtual ActionResult Update()
+        {
             
         }
     }

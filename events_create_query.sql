@@ -1,0 +1,7 @@
+CREATE TABLE Events (
+	eventId SERIAL PRIMARY KEY,
+	beginDate TIMESTAMP WITHOUT TIME ZONE,
+	estimationDate TIMESTAMP WITHOUT TIME ZONE,
+	title VARCHAR(120),
+	mdDescription TEXT
+);

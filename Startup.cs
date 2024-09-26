@@ -42,6 +42,7 @@ namespace ReactDemo
 
 			services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 			services.AddReact();
+			services.AddControllers();
 			
 			services.AddMvc();
 			services.AddDbContext<SnoTestDbContext>(options => options.UseNpgsql(Configuration.GetConnectionString("SnoTestDB")));
@@ -97,12 +98,7 @@ namespace ReactDemo
 			app.UseEndpoints(endpoints =>
 			{
 				endpoints.MapControllerRoute("default", "/{controller=Home}/{action=Index}/{id?}");
-				//endpoints.MapControllerRoute("apiEventDetails", "/{controller=Api}/{action}/{id?}");
-				endpoints.MapControllerRoute("apiEventsAll", "/{controller=Api}/{action=GetAll}/{apiData}");
-
-
-
-
+				endpoints.MapControllerRoute("apiEventsAll", "/{controller=Api}/{apiDataType}/{action}");
 			});
 
 /* 			app.MapRoute("/api", api => {

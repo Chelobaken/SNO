@@ -1,0 +1,13 @@
+CREATE TABLE projectAuthors 
+(
+	userId INTEGER NOT NULL,
+	projectId INTEGER NOT NULL,
+	
+	FOREIGN KEY (userId) REFERENCES users(userId)
+	ON DELETE CASCADE 
+	ON UPDATE CASCADE,
+
+	FOREIGN KEY (projectId) REFERENCES projects(projectId)
+	ON DELETE CASCADE 
+	ON UPDATE CASCADE
+);
