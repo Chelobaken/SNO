@@ -16,7 +16,6 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using React.AspNet;
-using SNO;
 
 namespace ReactDemo
 {
@@ -45,14 +44,12 @@ namespace ReactDemo
 			services.AddControllers();
 			
 			services.AddMvc();
-			services.AddDbContext<SnoTestDbContext>(options => options.UseNpgsql(Configuration.GetConnectionString("SnoTestDB")));
 			services.AddSingleton<IConfiguration>(Configuration);
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
 		{
-			//routeBuilder = new RouteBuilder(app);
 			
 			if (env.IsDevelopment())
 			{
@@ -98,14 +95,7 @@ namespace ReactDemo
 			app.UseEndpoints(endpoints =>
 			{
 				endpoints.MapControllerRoute("default", "/{controller=Home}/{action=Index}/{id?}");
-				endpoints.MapControllerRoute("apiEventsAll", "/{controller=Api}/{apiDataType}/{action}");
 			});
-
-/* 			app.MapRoute("/api", api => {
-				app.MapRoute("/events/{id?}", );
-				app.MapRoute("/events/new", );
-
-			}); */
 		}
 	}
 }
