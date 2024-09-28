@@ -122,7 +122,10 @@ public class EventsController : ApiController<Event>
         return Ok();
     }
 
-
+    public override JsonResult GetSchema()
+    {
+        
+    }
 }
 
 
