@@ -1,0 +1,36 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "title": "Event",
+    "description": "Object which store data about completed or future event.",
+    "properties": {
+        "begindate": {
+            "type": "string",
+            "format": "date-time"
+        },
+        "estimationdate": {
+            "type": "string",
+            "format" : "date-time"
+        },
+        
+        "currentAddress": {
+            "$id": "address",
+            "type": "object",
+            "properties": {
+                "city": {
+                    "type": "string"
+                },
+                "postalCode": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "city",
+                "postalCode"
+            ]
+        },
+        "permanentAddress": {
+            "$ref": "address"
+        }
+    }
+}
