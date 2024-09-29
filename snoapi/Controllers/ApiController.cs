@@ -10,6 +10,8 @@ using Newtonsoft.Json;
 namespace snoapi.Controllers;
 
 
+#nullable disable
+
 
 public class Selector<T> where T : class
 {
@@ -59,18 +61,20 @@ public class SnoWriterService<T> where T : class
 
     }
     
-    public virtual void WriteData(DbSet<T> dataSet, Stream requestBodyStream)
+    public virtual async Task<bool> WriteData(DbSet<T> dataSet, HttpRequest request)
     {
-        long streamLength = requestBodyStream.Length;
+        int streamLength = (int)request.ContentLength;
 
         byte[] bytes = new byte[streamLength];
-        requestBodyStream.Read(bytes);
+        await request.Body.ReadAsync(bytes);
 
         string json = Encoding.UTF8.GetString(bytes);
 
-        T? e = JsonConvert.DeserializeObject<T>(json);
+        T e = JsonConvert.DeserializeObject<T>(json);
 
-        dataSet.Add(e);
+        await dataSet.AddAsync(e);
+
+        return true;
     }
 }
 
@@ -102,7 +106,7 @@ public class EventsController : ApiController<Event>
 
     }
 
-    [Route("/{id?}")]
+    [Route("{id?}")]
     [HttpGet]
     public IActionResult Get(int? id)
     {
@@ -112,19 +116,26 @@ public class EventsController : ApiController<Event>
             return new JsonResult(_dbContext.Events.ToList());
     }
 
-    [Route("/new")]
+    [Route("new")]
     [HttpPost]
-    public IActionResult Post()
+    public async Task<IActionResult> Post()
     {
-        snoWriter.WriteData(_dbContext.Events, Request.Body);
+        //return new JsonResult("hhh");
+        
+        if(Request.ContentLength == 0)
+            return BadRequest();
+        
+        await snoWriter.WriteData(_dbContext.Events, Request);
         _dbContext.SaveChanges();
 
         return Ok();
     }
 
+    [Route("schema")]
+    [HttpGet]
     public override JsonResult GetSchema()
     {
-        
+        return new JsonResult("nil");
     }
 }
 
@@ -141,7 +152,7 @@ public class ProjectController : ApiController<Project>
     }
 
     
-    [Route("/{id?}")]
+    [Route("{id?}")]
     [HttpGet]
     public IActionResult Get(int? id)
     {
@@ -151,14 +162,21 @@ public class ProjectController : ApiController<Project>
             return new JsonResult(_dbContext.Events.ToList());
     }
 
-    [Route("/new")]
+    [Route("new")]
     [HttpPost]
-    public IActionResult Post()
+    public async Task<IActionResult> Post()
     {
-        snoWriter.WriteData(_dbContext.Projects, Request.Body);
+        await snoWriter.WriteData(_dbContext.Projects, Request);
         _dbContext.SaveChanges();
 
         return Ok();
+    }
+
+    [Route("schema")]
+    [HttpGet]
+    public override JsonResult GetSchema()
+    {
+        return new JsonResult("nil");
     }
 }
 
@@ -173,7 +191,7 @@ public class UsersController : ApiController<User>
         
     }
 
-    [Route("/{id?}")]
+    [Route("{id?}")]
     [HttpGet]
     public IActionResult Get(int? id)
     {
@@ -183,13 +201,20 @@ public class UsersController : ApiController<User>
             return new JsonResult(_dbContext.Events.ToList());
     }
 
-    [Route("/new")]
+    [Route("new")]
     [HttpPost]
-    public IActionResult Post()
+    public async Task<IActionResult> Post()
     {
-        snoWriter.WriteData(_dbContext.Users, Request.Body);
+        await snoWriter.WriteData(_dbContext.Users, Request);
         _dbContext.SaveChanges();
 
         return Ok();
+    }
+
+    [Route("schema")]
+    [HttpGet]
+    public override JsonResult GetSchema()
+    {
+        return new JsonResult("nil");
     }
 }

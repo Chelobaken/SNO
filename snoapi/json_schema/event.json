@@ -1,36 +1,28 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "type": "object",
+
     "title": "Event",
-    "description": "Object which store data about completed or future event.",
+    "description": "Object which stores information about completed and future events.",
+    "type": "object",
     "properties": {
-        "begindate": {
-            "type": "string",
-            "format": "date-time"
+        "begindate":{
+            "description" : "Date & time when event begins/began",
+            "type" : "string",
+            "format":"date-time"
         },
-        "estimationdate": {
-            "type": "string",
-            "format" : "date-time"
+        "eventid":{
+            "description" : "Event unique identifier. Unsigned integer",
+            "type" : "integer" 
         },
-        
-        "currentAddress": {
-            "$id": "address",
-            "type": "object",
-            "properties": {
-                "city": {
-                    "type": "string"
-                },
-                "postalCode": {
-                    "type": "number"
-                }
-            },
-            "required": [
-                "city",
-                "postalCode"
-            ]
+        "estimationdate":{
+            "description" : "Date & time when event will be completed/was completed",
+            "type" : "string",
+            "format":"date-time"
         },
-        "permanentAddress": {
-            "$ref": "address"
+        "estimationdate":{
+            "description" : "Date & time when event will be completed/was completed",
+            "type" : "string",
+            "format":"date-time"
         }
     }
 }
