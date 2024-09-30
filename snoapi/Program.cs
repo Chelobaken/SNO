@@ -15,6 +15,12 @@ builder.Services.AddScoped<SnoWriterService<Project>>();
 builder.Services.AddScoped<SnoWriterService<User>>();
 //builder.Services.AddScoped<SnoWriterService<Event>>();
 
+builder.Configuration.AddJsonFile("appsettings.json");
+builder.Configuration.AddJsonFile("appsettings.Development.json");
+
+int sslPort = (int)builder.Configuration.GetValue(typeof(int), "SSLPort");
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -24,6 +30,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.Use()
 
 app.Use // add CSP
 (
