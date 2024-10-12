@@ -2,20 +2,40 @@ using System.Net;
 using Microsoft.EntityFrameworkCore;
 using snoapi;
 using snoapi.Controllers;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddDbContext<SnoDB>(options => options.UseNpgsql(builder.Configuration["SnoTestDB"]));
 
 builder.Services.AddScoped<SnoWriterService<Event>>();
 builder.Services.AddScoped<SnoWriterService<Project>>();
 builder.Services.AddScoped<SnoWriterService<User>>();
-//builder.Services.AddScoped<SnoWriterService<Event>>();
+
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options => 
+    {
+        options.RequireHttpsMetadata = true;
+        options.TokenValidationParameters = new TokenValidationParameters()
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+
+            ValidIssuer = "KubSTU-Science-Community-JWT-Issuer",
+            ValidAudience = "KubSTU-Science-Community-JWT-API-Consumer",
+            
+            ValidAlgorithms = ["HS256"],
+            ValidateLifetime = true
+            
+        };
+    });
 
 builder.Configuration.AddJsonFile("appsettings.json");
 builder.Configuration.AddJsonFile("appsettings.Development.json");
