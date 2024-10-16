@@ -12,14 +12,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddDbContext<SnoDB>(options => options.UseNpgsql(builder.Configuration["SnoTestDB"]));
+builder.Services.AddDbContext<SnoDB>(options => options.UseNpgsql(builder.Configuration["ConnectionStrings:SnoTestDB"]));
 
 builder.Services.AddScoped<SnoWriterService<Event>>();
 builder.Services.AddScoped<SnoWriterService<Project>>();
 builder.Services.AddScoped<SnoWriterService<User>>();
 
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+/* builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options => 
     {
         options.RequireHttpsMetadata = true;
@@ -32,10 +32,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = "KubSTU-Science-Community-JWT-API-Consumer",
             
             ValidAlgorithms = ["HS256"],
-            ValidateLifetime = true
+            ValidateLifetime = true,
+            
             
         };
-    });
+
+        options.MapInboundClaims = false;
+    }); */
+
+
+
 
 builder.Configuration.AddJsonFile("appsettings.json");
 builder.Configuration.AddJsonFile("appsettings.Development.json");
@@ -44,6 +50,9 @@ builder.Configuration.AddJsonFile("appsettings.Development.json");
 
 
 var app = builder.Build();
+
+app.UseAuthorization();
+app.UseAuthentication();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -66,7 +75,7 @@ app.Use // add CSP
     }
 );
 
-app.UseAuthorization();
+
 
 app.MapControllers();
 

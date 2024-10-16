@@ -16,7 +16,7 @@ namespace snoapi.Controllers;
 public class Selector<T> where T : class
 {
     protected DbSet<T> set;
-    
+
     public Selector(DbSet<T> set)
     {
         this.set = set;
@@ -30,8 +30,8 @@ public class Selector<T> where T : class
 
 public class EventByIdSelector : Selector<Event>
 {
-    private int? id; 
-    
+    private int? id;
+
     public EventByIdSelector(int? id, DbSet<Event> set) : base(set)
     {
         this.set = set;
@@ -43,8 +43,8 @@ public class EventByIdSelector : Selector<Event>
 
 public class ProjectByIdSelector : Selector<Project>
 {
-    private int? id; 
-    
+    private int? id;
+
     public ProjectByIdSelector(int? id, DbSet<Project> set) : base(set)
     {
         this.set = set;
@@ -60,7 +60,7 @@ public class SnoWriterService<T> where T : class
     {
 
     }
-    
+
     public virtual async Task<bool> WriteData(DbSet<T> dataSet, HttpRequest request)
     {
         int streamLength = (int)request.ContentLength;
@@ -83,7 +83,7 @@ public abstract class ApiController<T> : ControllerBase where T : class
     protected readonly ILogger<ApiController<T>> _logger;
     protected readonly SnoDB _dbContext;
     protected readonly SnoWriterService<T> snoWriter;
-    
+
     public ApiController(ILogger<ApiController<T>> logger, SnoDB db, SnoWriterService<T> snoWriter)
     {
         _logger = logger;
@@ -100,14 +100,15 @@ public abstract class ApiController<T> : ControllerBase where T : class
 [Route("/api/events")]
 public class EventsController : ApiController<Event>
 {
-    public EventsController(ILogger<EventsController > logger, SnoDB dbContext, SnoWriterService<Event> snoWriter)
-    : base (logger, dbContext, snoWriter)
+    public EventsController(ILogger<EventsController> logger, SnoDB dbContext, SnoWriterService<Event> snoWriter)
+    : base(logger, dbContext, snoWriter)
     {
 
     }
 
     [Route("{id?}")]
     [HttpGet]
+
     public IActionResult Get(int? id)
     {
         if (id != null)
@@ -121,10 +122,10 @@ public class EventsController : ApiController<Event>
     public async Task<IActionResult> Post()
     {
         //return new JsonResult("hhh");
-        
-        if(Request.ContentLength == 0)
+
+        if (Request.ContentLength == 0)
             return BadRequest();
-        
+
         await snoWriter.WriteData(_dbContext.Events, Request);
         _dbContext.SaveChanges();
 
@@ -145,13 +146,13 @@ public class EventsController : ApiController<Event>
 
 public class ProjectController : ApiController<Project>
 {
-    public ProjectController(ILogger<ProjectController > logger, SnoDB dbContext, SnoWriterService<Project> snoWriter)
-    : base (logger, dbContext, snoWriter)
+    public ProjectController(ILogger<ProjectController> logger, SnoDB dbContext, SnoWriterService<Project> snoWriter)
+    : base(logger, dbContext, snoWriter)
     {
 
     }
 
-    
+
     [Route("{id?}")]
     [HttpGet]
     public IActionResult Get(int? id)
@@ -159,7 +160,32 @@ public class ProjectController : ApiController<Project>
         if (id != null)
             return new JsonResult(_dbContext.Projects.Where(e => e.Projectid == id));
         else
-            return new JsonResult(_dbContext.Events.ToList());
+            return new JsonResult(_dbContext.Projects.ToList());
+    }
+
+
+    [Route("{id}/authors")]
+    [HttpGet]
+    public IActionResult GetRelatedProjects(int id)
+    {
+        var projectsWithAuthors = _dbContext.Projectauthors.Join(_dbContext.Users,
+                    author => author.Userid, user => user.Userid,
+                    (author, user) =>
+                    new
+                    {
+                        ProjectId = author.Projectid,
+                        Firstname = user.Firstname,
+                        Lastname = user.Lastname,
+                        Patronymic = user.Patronymic,
+                        Email = user.Email,
+                        VkUsername = user.Usernamevk,
+                        TelegramUsername = user.Usernametg,
+                        PhoneNumber = user.Phonenumber
+                    }).ToList();
+
+        var authorsOfSpecifiedProject = projectsWithAuthors.Where(entry => entry.ProjectId == id);
+
+        return new JsonResult(authorsOfSpecifiedProject);
     }
 
     [Route("new")]
@@ -171,7 +197,7 @@ public class ProjectController : ApiController<Project>
 
         return Ok();
     }
-  
+
     [Route("schema")]
     [HttpGet]
     public override JsonResult GetSchema()
@@ -185,20 +211,34 @@ public class ProjectController : ApiController<Project>
 [Route("/api/users")]
 public class UsersController : ApiController<User>
 {
-    public UsersController(ILogger<UsersController > logger, SnoDB dbContext, SnoWriterService<User> snoWriter) : 
+    public UsersController(ILogger<UsersController> logger, SnoDB dbContext, SnoWriterService<User> snoWriter) :
      base(logger, dbContext, snoWriter)
     {
-        
+
     }
 
     [Route("{id?}")]
     [HttpGet]
-    public IActionResult Get(int? id)
+    public IActionResult GetUser(int? id)
     {
         if (id != null)
-            return new JsonResult(_dbContext.Users.Where(e=>e.Userid == id));
+            return new JsonResult(_dbContext.Users.Where(e => e.Userid == id));
         else
-            return new JsonResult(_dbContext.Events.ToList());
+            return new JsonResult(_dbContext.Users.ToList());
+    }
+
+    [Route("{id}/projects")]
+    [HttpGet]
+    public IActionResult GetRelatedProjects(int id)
+    {
+        var authorsWithProjects = _dbContext.Projectauthors.Join(_dbContext.Projects,
+                    author => author.Projectid, project => project.Projectid,
+                    (author, project) =>
+                    new { ProjectAuthorId = author.Userid, Title = project.Title, Description = project.Mddescription }).ToList();
+
+        var projectsOfSpecifiedUser = authorsWithProjects.Where(entry => entry.ProjectAuthorId == id);
+
+        return new JsonResult(projectsOfSpecifiedUser);
     }
 
     [Route("new")]
