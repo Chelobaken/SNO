@@ -19,7 +19,7 @@ builder.Services.AddScoped<SnoWriterService<Project>>();
 builder.Services.AddScoped<SnoWriterService<User>>();
 
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+/* builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options => 
     {
         options.RequireHttpsMetadata = true;
@@ -32,10 +32,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = "KubSTU-Science-Community-JWT-API-Consumer",
             
             ValidAlgorithms = ["HS256"],
-            ValidateLifetime = true
+            ValidateLifetime = true,
+            
             
         };
-    });
+
+        options.MapInboundClaims = false;
+    }); */
+
 
 builder.Configuration.AddJsonFile("appsettings.json");
 builder.Configuration.AddJsonFile("appsettings.Development.json");
@@ -66,7 +70,7 @@ app.Use // add CSP
     }
 );
 
-app.UseAuthorization();
+//app.UseAuthorization();
 
 app.MapControllers();
 

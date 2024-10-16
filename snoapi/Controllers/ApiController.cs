@@ -108,6 +108,7 @@ public class EventsController : ApiController<Event>
 
     [Route("{id?}")]
     [HttpGet]
+   
     public IActionResult Get(int? id)
     {
         if (id != null)
