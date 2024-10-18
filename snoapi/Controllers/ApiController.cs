@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
-namespace snoapi.Controllers;
+namespace SNO.API;
 
 
 #nullable disable
@@ -54,29 +54,7 @@ public class ProjectByIdSelector : Selector<Project>
     public override List<Project> Select() => set.Where(e => e.Projectid == id).ToList();
 }
 
-public class SnoWriterService<T> where T : class
-{
-    public SnoWriterService()
-    {
 
-    }
-
-    public virtual async Task<bool> WriteData(DbSet<T> dataSet, HttpRequest request)
-    {
-        int streamLength = (int)request.ContentLength;
-
-        byte[] bytes = new byte[streamLength];
-        await request.Body.ReadAsync(bytes);
-
-        string json = Encoding.UTF8.GetString(bytes);
-
-        T e = JsonConvert.DeserializeObject<T>(json);
-
-        await dataSet.AddAsync(e);
-
-        return true;
-    }
-}
 
 public abstract class ApiController<T> : ControllerBase where T : class
 {
@@ -92,169 +70,4 @@ public abstract class ApiController<T> : ControllerBase where T : class
     }
 
     public abstract JsonResult GetSchema();
-}
-
-
-
-[ApiController]
-[Route("/api/events")]
-public class EventsController : ApiController<Event>
-{
-    public EventsController(ILogger<EventsController> logger, SnoDB dbContext, SnoWriterService<Event> snoWriter)
-    : base(logger, dbContext, snoWriter)
-    {
-
-    }
-
-    [Route("{id?}")]
-    [HttpGet]
-
-    public IActionResult Get(int? id)
-    {
-        if (id != null)
-            return new JsonResult(_dbContext.Events.Where(e => e.Eventid == id));
-        else
-            return new JsonResult(_dbContext.Events.ToList());
-    }
-
-    [Route("new")]
-    [HttpPost]
-    public async Task<IActionResult> Post()
-    {
-        //return new JsonResult("hhh");
-
-        if (Request.ContentLength == 0)
-            return BadRequest();
-
-        await snoWriter.WriteData(_dbContext.Events, Request);
-        _dbContext.SaveChanges();
-
-        return Ok();
-    }
-
-    [Route("schema")]
-    [HttpGet]
-    public override JsonResult GetSchema()
-    {
-        return new JsonResult("nil");
-    }
-}
-
-
-[ApiController]
-[Route("/api/projects")]
-
-public class ProjectController : ApiController<Project>
-{
-    public ProjectController(ILogger<ProjectController> logger, SnoDB dbContext, SnoWriterService<Project> snoWriter)
-    : base(logger, dbContext, snoWriter)
-    {
-
-    }
-
-
-    [Route("{id?}")]
-    [HttpGet]
-    public IActionResult Get(int? id)
-    {
-        if (id != null)
-            return new JsonResult(_dbContext.Projects.Where(e => e.Projectid == id));
-        else
-            return new JsonResult(_dbContext.Projects.ToList());
-    }
-
-
-    [Route("{id}/authors")]
-    [HttpGet]
-    public IActionResult GetRelatedProjects(int id)
-    {
-        var projectsWithAuthors = _dbContext.Projectauthors.Join(_dbContext.Users,
-                    author => author.Userid, user => user.Userid,
-                    (author, user) =>
-                    new
-                    {
-                        ProjectId = author.Projectid,
-                        Firstname = user.Firstname,
-                        Lastname = user.Lastname,
-                        Patronymic = user.Patronymic,
-                        Email = user.Email,
-                        VkUsername = user.Usernamevk,
-                        TelegramUsername = user.Usernametg,
-                        PhoneNumber = user.Phonenumber
-                    }).ToList();
-
-        var authorsOfSpecifiedProject = projectsWithAuthors.Where(entry => entry.ProjectId == id);
-
-        return new JsonResult(authorsOfSpecifiedProject);
-    }
-
-    [Route("new")]
-    [HttpPost]
-    public async Task<IActionResult> Post()
-    {
-        await snoWriter.WriteData(_dbContext.Projects, Request);
-        _dbContext.SaveChanges();
-
-        return Ok();
-    }
-
-    [Route("schema")]
-    [HttpGet]
-    public override JsonResult GetSchema()
-    {
-        return new JsonResult("nil");
-    }
-}
-
-
-[ApiController]
-[Route("/api/users")]
-public class UsersController : ApiController<User>
-{
-    public UsersController(ILogger<UsersController> logger, SnoDB dbContext, SnoWriterService<User> snoWriter) :
-     base(logger, dbContext, snoWriter)
-    {
-
-    }
-
-    [Route("{id?}")]
-    [HttpGet]
-    public IActionResult GetUser(int? id)
-    {
-        if (id != null)
-            return new JsonResult(_dbContext.Users.Where(e => e.Userid == id));
-        else
-            return new JsonResult(_dbContext.Users.ToList());
-    }
-
-    [Route("{id}/projects")]
-    [HttpGet]
-    public IActionResult GetRelatedProjects(int id)
-    {
-        var authorsWithProjects = _dbContext.Projectauthors.Join(_dbContext.Projects,
-                    author => author.Projectid, project => project.Projectid,
-                    (author, project) =>
-                    new { ProjectAuthorId = author.Userid, Title = project.Title, Description = project.Mddescription }).ToList();
-
-        var projectsOfSpecifiedUser = authorsWithProjects.Where(entry => entry.ProjectAuthorId == id);
-
-        return new JsonResult(projectsOfSpecifiedUser);
-    }
-
-    [Route("new")]
-    [HttpPost]
-    public async Task<IActionResult> Post()
-    {
-        await snoWriter.WriteData(_dbContext.Users, Request);
-        _dbContext.SaveChanges();
-
-        return Ok();
-    }
-
-    [Route("schema")]
-    [HttpGet]
-    public override JsonResult GetSchema()
-    {
-        return new JsonResult("nil");
-    }
 }
