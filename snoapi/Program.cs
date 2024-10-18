@@ -13,6 +13,7 @@ builder.Services.AddDbContext<SnoDB>(options => options.UseNpgsql(builder.Config
 builder.Services.AddScoped<SnoWriterService<Event>>();
 builder.Services.AddScoped<SnoWriterService<Project>>();
 builder.Services.AddScoped<SnoWriterService<User>>();
+builder.Services.AddScoped<JsonFileReadService>();
 
 
 /* builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
