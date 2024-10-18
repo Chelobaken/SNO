@@ -1,9 +1,5 @@
-using System.Net;
 using Microsoft.EntityFrameworkCore;
-using snoapi;
-using snoapi.Controllers;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
+using SNO.API;
 
 var builder = WebApplication.CreateBuilder(args);
 

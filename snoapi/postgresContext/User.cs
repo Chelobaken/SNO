@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace SNO.API;
+﻿namespace SNO.API;
 
 public partial class User
 {
