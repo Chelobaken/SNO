@@ -1,3 +1,7 @@
+using System.Net;
+using System.Runtime.CompilerServices;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using SNO.API;
 
@@ -14,6 +18,26 @@ builder.Services.AddScoped<SnoWriterService<Event>>();
 builder.Services.AddScoped<SnoWriterService<Project>>();
 builder.Services.AddScoped<SnoWriterService<User>>();
 builder.Services.AddScoped<JsonFileReadService>();
+
+builder.Services.AddRateLimiter(limitter =>
+
+    {
+        limitter.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+        limitter.AddFixedWindowLimiter(
+
+            policyName: "fixed", options =>
+            {
+                options.PermitLimit = 100;
+                options.Window = TimeSpan.FromMinutes(1);
+                options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+                options.QueueLimit = 0;
+            }
+
+        );
+    }
+);
+
 
 
 /* builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -38,18 +62,16 @@ builder.Services.AddScoped<JsonFileReadService>();
     }); */
 
 
-
-
 builder.Configuration.AddJsonFile("appsettings.json");
 builder.Configuration.AddJsonFile("appsettings.Development.json");
-
-//int sslPort = (int)builder.Configuration.GetValue(typeof(int), "SSLPort");
 
 
 var app = builder.Build();
 
 app.UseAuthorization();
 app.UseAuthentication();
+
+app.UseRateLimiter();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -74,6 +96,6 @@ app.Use // add CSP
 
 
 
-app.MapControllers();
+app.MapControllers().RequireRateLimiting("fixed");
 
 app.Run();
