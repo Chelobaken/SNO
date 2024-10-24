@@ -38,7 +38,7 @@ public class UsersController : ApiController<User>
         return new JsonResult(projectsOfSpecifiedUser);
     }
 
-    [Route("new")]
+    //[Route("new")]
     [HttpPost]
     public async Task<IActionResult> Post()
     {

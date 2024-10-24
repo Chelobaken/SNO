@@ -11,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-builder.Services.AddEndpointsApiExplorer();
+//builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddDbContext<SnoDB>(options => options.UseNpgsql(builder.Configuration["ConnectionStrings:SnoDB"]));
 
 builder.Services.AddScoped<SnoWriterService<Event>>();
@@ -67,6 +67,7 @@ builder.Services.AddRateLimiter(limitter =>
 
 var app = builder.Build();
 
+app.UseHttpLogging();
 app.UseAuthorization();
 app.UseAuthentication();
 

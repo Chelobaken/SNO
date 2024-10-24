@@ -52,7 +52,7 @@ public class ProjectController : ApiController<Project>
         return new JsonResult(authorsOfSpecifiedProject);
     }
 
-    [Route("new")]
+    //[Route("new")]
     [HttpPost]
     public async Task<IActionResult> Post()
     {

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -18,13 +19,13 @@ public class EventsController : ApiController<Event>
 
     public IActionResult Get(int? id)
     {
-        if (id != null)
-            return new JsonResult(_dbContext.Events.Where(e => e.Eventid == id));
-        else
-            return new JsonResult(_dbContext.Events.ToList());
+            if (id != null)
+                return new JsonResult(_dbContext.Events.Where(e => e.Eventid == id));
+            else
+                return new JsonResult(_dbContext.Events.ToList());
     }
 
-    [Route("new")]
+    //[Route("new")]
     [HttpPost]
     public async Task<IActionResult> Post()
     {
