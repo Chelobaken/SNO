@@ -62,8 +62,7 @@ builder.Services.AddRateLimiter(limitter =>
     }); */
 
 
-builder.Configuration.AddJsonFile("appsettings.json");
-builder.Configuration.AddJsonFile("appsettings.Development.json");
+
 
 
 var app = builder.Build();
@@ -71,14 +70,12 @@ var app = builder.Build();
 app.UseAuthorization();
 app.UseAuthentication();
 
+//app.UseMiddleware<IPValidatorMiddleware>();
+
 app.UseRateLimiter();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
 
-}
-
+builder.Configuration.AddJsonFile($"appsettings.{app.Environment.EnvironmentName}.json");
 
 
 app.UseHttpsRedirection();
