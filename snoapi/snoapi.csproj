@@ -17,11 +17,28 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="$(Configuration) != ''">
     <Content Include="./NoSQL/*" CopyToOutputDirectory="PreserveNewest"/>
     <Content Include="./Properties/*" CopyToOutputDirectory="PreserveNewest"/>
     <Content Remove="./appSettingsSSL/*"/>
   </ItemGroup>
 
+  <PropertyGroup Condition="$(Configuration) == 'Debug'">
+    <EnvironmentName>Development</EnvironmentName>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="$(Configuration) != 'Debug'">
+    <EnvironmentName>Production</EnvironmentName>
+  </PropertyGroup>
+
+  <ItemGroup Condition="$(Configuration) == 'Debug'">
+    <Content Include="appSettings.Development.json"/>
+    <Content Remove="appSettings.Production.json"/>
+  </ItemGroup>
+
+    <ItemGroup Condition="$(Configuration) != 'Debug'">
+    <Content Remove="appSettings.Development.json"/>
+    <Content Include="appSettings.Production.json"/>
+  </ItemGroup>
 
 </Project>
