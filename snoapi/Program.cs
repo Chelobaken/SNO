@@ -12,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddDbContext<SnoDB>(options => options.UseNpgsql(builder.Configuration["ConnectionStrings:SnoTestDB"]));
+builder.Services.AddDbContext<SnoDB>(options => options.UseNpgsql(builder.Configuration["ConnectionStrings:SnoDB"]));
 
 builder.Services.AddScoped<SnoWriterService<Event>>();
 builder.Services.AddScoped<SnoWriterService<Project>>();
