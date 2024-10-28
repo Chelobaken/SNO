@@ -10,3 +10,4 @@
 - GET /api/users: get all users
     - /api/users/{id}: get single user with specified id
         - /api/users/{id}/projects: get projects of specified author (with author`s id)
+- GET /api/skills: get all skills of all departments
