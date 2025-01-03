@@ -19,6 +19,10 @@ builder.Services.AddScoped<SnoWriterService<Project>>();
 builder.Services.AddScoped<SnoWriterService<User>>();
 builder.Services.AddScoped<JsonFileReadService>();
 
+builder.Services.AddScoped<ImageFileReadService>();
+
+
+
 builder.Services.AddRateLimiter(limitter =>
 
     {

@@ -35,3 +35,30 @@ public class JsonFileReadService
         return jsonData;
     }
 }
+
+public class ImageFileReadService
+{
+
+    private IConfiguration appConfig;
+    private FileStream fileStream;
+
+    public ImageFileReadService(IConfiguration configuration)
+    {
+        appConfig = configuration;
+    }
+
+    public FileStream ReadImage(string FileName)
+    {
+        string path = appConfig["NonRelationalData:ImagesDir"] + "/" + FileName;
+        
+        /* if(!File.Exists(path))
+        {
+            throw new FileNotFoundException("File " + path + " not found.");
+        } */
+        
+        fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
+
+
+        return fileStream;
+    }
+}
