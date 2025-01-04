@@ -1,6 +1,7 @@
 
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 
 #nullable disable
@@ -9,6 +10,8 @@ namespace SNO.API;
 
 public class JsonFileReadService
 {
+    
+    
     private StreamReader reader;
     private FileStream stream;
     private IConfiguration appConfig;
@@ -39,26 +42,43 @@ public class JsonFileReadService
 public class ImageFileReadService
 {
 
+    public enum FileReadResult
+    {
+        Ok = 0,
+        FileNotFound = -1,
+        InsecureRead = 1,
+    }
+    
     private IConfiguration appConfig;
     private FileStream fileStream;
+    private const string INSECURE_PATH_REGEX = @"((\.\.)+/?)+"; 
 
     public ImageFileReadService(IConfiguration configuration)
     {
         appConfig = configuration;
     }
 
-    public FileStream ReadImage(string FileName)
+    public FileStream ReadImage(string FileName, out FileReadResult result)
     {
         string path = appConfig["NonRelationalData:ImagesDir"] + "/" + FileName;
         
-        /* if(!File.Exists(path))
+        if(Regex.IsMatch(FileName, INSECURE_PATH_REGEX))
         {
-            throw new FileNotFoundException("File " + path + " not found.");
-        } */
+            result = FileReadResult.InsecureRead;
+            return null;
+        }
+
+        
+        if(!File.Exists(path))
+        {
+            result = FileReadResult.FileNotFound;
+            return null;
+        }
         
         fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
 
 
+        result = FileReadResult.Ok;
         return fileStream;
     }
 }

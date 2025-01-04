@@ -20,11 +20,26 @@ public class ImageController : ApiController<FileStream>
     
     [HttpGet]
     [Route("{name}")]
-    public FileResult Get(string name)
+    public ActionResult Get(string name)
     {
-        FileStream stream = imageReader.ReadImage(name);
+        ImageFileReadService.FileReadResult r;
+        FileStream stream = imageReader.ReadImage(name, out r);
 
-        return new FileStreamResult(stream, "image/jpeg");
+        switch(r)
+        {
+            case ImageFileReadService.FileReadResult.FileNotFound:
+            {
+                return new NotFoundResult();
+            }
+            case ImageFileReadService.FileReadResult.InsecureRead:
+            {
+                return new BadRequestResult();
+            }
+            default:
+                return new FileStreamResult(stream, "image/jpeg");
+        }
+        
+        
     }
     
     
